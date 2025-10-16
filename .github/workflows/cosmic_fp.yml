@@ -9,29 +9,29 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-    - name: Checkout workflow repo
-      uses: actions/checkout@v3
+      - name: Checkout workflow repo
+        uses: actions/checkout@v3
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3 python3-pip cargo git build-essential
-        pip install requests tree_sitter
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip cargo git build-essential
+          pip install requests tree_sitter
 
-    - name: Install Tokei
-      run: cargo install tokei
+      - name: Install Tokei
+        run: cargo install tokei
 
-    - name: Stage 1 – Fetch Top Rust Repos
-      run: python stage1_fetch_repos.py
+      - name: Stage 1 – Fetch Top Rust Repos
+        run: python stage1_fetch_repos.py
 
-    - name: Stage 2 – Count eLOC, Comments, Blanks and Filter Rust >80%
-      run: python stage2_count_eloc_filtered.py
+      - name: Stage 2 – Count eLOC, Comments, Blanks and Filter Rust >80%
+        run: python stage2_count_eloc_filtered.py
 
-    - name: Stage 3 – COSMIC FP Analysis (Multithreaded)
-      run: python stage3_cosmic_fp_multithread.py
+      - name: Stage 3 – COSMIC FP Analysis (Multithreaded)
+        run: python stage3_cosmic_fp_multithread.py
 
-    - name: Upload results
-      uses: actions/upload-artifact@v3
-      with:
-        name: cosmic_fp_results
-        path: rust_loc_results_with_fp_multithread.csv
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: cosmic_fp_results
+          path: rust_loc_results_with_fp_multithread.csv
