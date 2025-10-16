@@ -22,13 +22,13 @@ jobs:
         run: cargo install tokei
 
       - name: Stage 1 – Fetch Top Rust Repos
-        run: python stage1_fetch_repos.py
+        run: python scripts/stage1_fetch_repos.py
 
       - name: Stage 2 – Count eLOC, Comments, Blanks and Filter Rust >80%
-        run: python stage2_count_eloc_filtered.py
+        run: python scripts/stage2_count_eloc_filtered.py
 
       - name: Stage 3 – COSMIC FP Analysis (Multithreaded)
-        run: python stage3_cosmic_fp_multithread.py
+        run: python scripts/stage3_cosmic_fp_multithread.py
 
       - name: Upload results
         uses: actions/upload-artifact@v4
