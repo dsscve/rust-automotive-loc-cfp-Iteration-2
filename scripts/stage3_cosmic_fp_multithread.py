@@ -63,10 +63,6 @@ def analyze_fp(node, code_bytes, fp_names):
             if any(net in snippet for net in ['reqwest::get', 'reqwest::post', 'TcpStream']):
                 E += 1
                 X += 1
-            if n.type == 'call_expression':
-                called_name = snippet.split('(')[0].strip()
-                if called_name in fp_names:
-                    pass
             stack.extend(n.children)
     return E, X, R, W
 
@@ -82,12 +78,10 @@ def process_rs_file(rs_file):
         w_total += w
     return e_total, x_total, r_total, w_total
 
-# --- CSV processing ---
 input_csv = "rust_loc_results.csv"
 output_csv = "rust_loc_results_with_fp_multithread.csv"
 
-total_eloc = 0
-total_cfp = 0
+total_eloc = total_cfp = 0
 
 with open(input_csv) as infile, open(output_csv, 'w', newline='') as outfile:
     reader = csv.DictReader(infile)
@@ -101,11 +95,13 @@ with open(input_csv) as infile, open(output_csv, 'w', newline='') as outfile:
         e_total = x_total = r_total = w_total = 0
 
         if os.path.exists(repo_dir):
-            rs_files = [os.path.join(root, f)
-                        for root, _, files in os.walk(repo_dir)
-                        for f in files if f.endswith(".rs")]
+            rs_files = [
+                os.path.join(root, f)
+                for root, _, files in os.walk(repo_dir)
+                for f in files if f.endswith(".rs")
+            ]
 
-            with ThreadPoolExecutor() as executor:
+            with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = {executor.submit(process_rs_file, rs_file): rs_file for rs_file in rs_files}
                 for future in as_completed(futures):
                     e, x, r, w = future.result()
@@ -135,4 +131,15 @@ with open(input_csv) as infile, open(output_csv, 'w', newline='') as outfile:
     writer.writerow({
         "repo": "TOTAL SUMMARY",
         "rust_files": "",
-        "rust_code": total_el
+        "rust_code": total_eloc,
+        "rust_comments": "",
+        "rust_blanks": "",
+        "Entry": "",
+        "Exit": "",
+        "Read": "",
+        "Write": "",
+        "CFP": total_cfp,
+        "eLOC_per_CFP": avg_ratio
+    })
+
+print(f"✅ Results written to {output_csv}")
