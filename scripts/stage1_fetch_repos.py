@@ -17,6 +17,10 @@ headers = {"Authorization": f"token {TOKEN}"}
 repos = []
 page = 1
 
+# --- Load existing cloned repos to skip ---
+existing_repos = set(os.listdir(WORK_DIR))
+print(f"🔹 Found {len(existing_repos)} existing directories in {WORK_DIR}")
+
 print(f"🔍 Fetching top {TOP_N} Rust repositories by stars...")
 
 while len(repos) < TOP_N:
