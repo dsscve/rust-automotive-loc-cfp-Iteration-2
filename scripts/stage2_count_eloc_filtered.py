@@ -6,7 +6,7 @@ import time
 
 WORK_DIR = "work"
 OUTPUT_CSV = "rust_loc_results.csv"
-RUST_PERCENT_THRESHOLD = 80  # Only keep repos with Rust > 80%
+RUST_PERCENT_THRESHOLD = 80
 
 rows = []
 
