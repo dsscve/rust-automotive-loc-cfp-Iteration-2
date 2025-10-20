@@ -10,40 +10,49 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2️⃣ Debug - list files
       - name: Debug – Verify files
         run: |
           echo "Current directory: $(pwd)"
           ls -R
 
+      # 3️⃣ Install system dependencies and pinned Tree-Sitter
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip cargo git build-essential
-          pip install requests tree_sitter
+          pip install "tree_sitter==0.20.4" requests
 
+      # 4️⃣ Install Tokei for Rust code stats
       - name: Install Tokei
         run: cargo install tokei
 
+      # 5️⃣ Build Tree-Sitter Rust parser
       - name: Build Tree-Sitter Rust parser
         run: |
           mkdir -p build
           git clone https://github.com/tree-sitter/tree-sitter-rust.git
           python3 -c "from tree_sitter import Language; Language.build_library('build/my-languages.so', ['tree-sitter-rust'])"
 
+      # 6️⃣ Stage 1 – Fetch Top Rust Repos (resume mode)
       - name: Stage 1 – Fetch Top Rust Repos
         run: python3 scripts/stage1_fetch_repos.py
 
-      - name: Stage 2 – Count eLOC, Comments, Blanks and Filter Rust >80%
+      # 7️⃣ Stage 2 – Count eLOC, Comments, Blanks and Filter Rust >80%
+      - name: Stage 2 – Count eLOC and Filter Rust >80%
         run: python3 scripts/stage2_count_eloc_filtered.py
 
-      - name: Stage 3 – COSMIC FP Analysis (Multithreaded)
+      # 8️⃣ Stage 3 – COSMIC FP Analysis (Multithreaded)
+      - name: Stage 3 – COSMIC FP Analysis
         run: python3 scripts/stage3_cosmic_fp_multithread.py
 
+      # 9️⃣ Upload final results
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
